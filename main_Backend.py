@@ -40,7 +40,7 @@ def set_Profile(profile, currentProfile, fernet, identifier):
     encrypt(profile, fernet, identifier)
 
 def mark_Add(fernet, identifier):
-    profile = 'profile' + input('choose profile number: ') + '.txt'
+    profile = './profiles/profile' + input('choose profile number: ') + '.txt'
     try:
         decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
     except:
@@ -66,14 +66,14 @@ def mark_Add(fernet, identifier):
 def mark_Del(fernet, identifier):
     option = input('delete (P)rofile or (F)ile?: ').lower()
     if option == 'p':
-        profile = 'profile' + input('choose profile number: ') + '.txt'
+        profile = './profiles/profile' + input('choose profile number: ') + '.txt'
         if os.path.exists(profile):
             os.remove(profile)
             print("Profile Deleted")
         else:
             print("Profile does not exist")
     elif option == 'f':
-        profile = 'profile' + input('choose profile number: ') + '.txt'
+        profile = './profiles/profile' + input('choose profile number: ') + '.txt'
         try:
             decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
             currentProfile = get_Profile(profile) # get filepaths
@@ -102,7 +102,7 @@ def mark_Del(fernet, identifier):
         print("Option not chosen")
 
 def mark_Toggle(fernet, identifier):
-    profile = 'profile' + input('choose profile number: ') + '.txt'
+    profile = './profiles/profile' + input('choose profile number: ') + '.txt'
     try: # try to encrypt/decrypt files
         decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
         currentProfile = get_Profile(profile) # decrypt profile first, if dne will be caught
