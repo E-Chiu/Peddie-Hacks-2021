@@ -4,7 +4,9 @@ import os.path
 sg.theme('Black')
 
 layout = [
-    [sg.Input(), sg.FileBrowse("Add Files"), sg.Button("OK")]
+    [sg.Input(), sg.FolderBrowse("Add Folder")],
+    [sg.Input(), sg.FileBrowse("Add File")],
+    [sg.Button("OK")]
 ]
 
 window = sg.Window(title="File Storage", layout=layout, margins=(300, 250))
