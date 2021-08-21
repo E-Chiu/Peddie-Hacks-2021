@@ -40,69 +40,56 @@ def set_Profile(profile, currentProfile, fernet, identifier):
     encrypt(profile, fernet, identifier)
 
 def mark_Add(fernet, identifier):
-    profile = './profiles/profile' + input('choose profile number: ') + '.txt'
+    profile = './profiles/' + input('choose profile name: ') + '.profile'
     try:
-        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
-    except:
-        # if there is exception then new profile should be made
-        open(profile, 'x')
-        print('New Profile has been made')
-    currentProfile = get_Profile(profile) # get filenames
-    filename = ''
-    while True:
-        print('Current filepaths: ' + ', '.join(currentProfile))
-        filename = input('enter a filepath or "stop": ')
-        if os.path.exists(filename):
-            currentProfile.append(filename) # add to list if exists
-            print("File has been marked")
-        else:
-            filename = filename.lower()
-            if filename != 'stop': # check to see if it is exit statement
-                print('Error: File does not exist')
+        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught        
+        currentProfile = get_Profile(profile) # get filenames
+        filename = ''
+        while True:
+            print('Current filepaths: ' + ', '.join(currentProfile))
+            filename = input('enter a filepath or "stop": ')
+            if os.path.exists(filename):
+                currentProfile.append(filename) # add to list if exists
+                print("File has been marked")
             else:
-                break
-    set_Profile(profile, currentProfile, fernet, identifier)
+                filename = filename.lower()
+                if filename != 'stop': # check to see if it is exit statement
+                    print('Error: File does not exist')
+                else:
+                    break
+        set_Profile(profile, currentProfile, fernet, identifier)
+    except:
+        print("Profile does not exist")
 
 def mark_Del(fernet, identifier):
-    option = input('delete (P)rofile or (F)ile?: ').lower()
-    if option == 'p':
-        profile = './profiles/profile' + input('choose profile number: ') + '.txt'
-        if os.path.exists(profile):
-            os.remove(profile)
-            print("Profile Deleted")
-        else:
-            print("Profile does not exist")
-    elif option == 'f':
-        profile = './profiles/profile' + input('choose profile number: ') + '.txt'
-        try:
-            decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
-            currentProfile = get_Profile(profile) # get filepaths
-            filepath = ''
-            while True:
-                print('Current filepaths: ' + ', '.join(currentProfile))
-                filepath = input('Enter a filepath or "stop": ')
-                if filepath in currentProfile:
-                    # check first if marked file has been encoded
-                    with open(filepath, 'rb') as f:
-                        if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
-                            decrypt(filepath, fernet, identifier)
-                            print("Encoded file has been decoded first")
-                    currentProfile.remove(filepath)
-                    print("File has been unmarked")
+    profile = './profiles/' + input('choose profile name: ') + '.profile'
+    try:
+        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
+        currentProfile = get_Profile(profile) # get filepaths
+        filepath = ''
+        while True:
+            print('Current filepaths: ' + ', '.join(currentProfile))
+            filepath = input('Enter a filepath or "stop": ')
+            if filepath in currentProfile:
+                # check first if marked file has been encoded
+                with open(filepath, 'rb') as f:
+                    if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
+                        decrypt(filepath, fernet, identifier)
+                        print("Encoded file has been decoded first")
+                currentProfile.remove(filepath)
+                print("File has been unmarked")
+            else:
+                filepath = filepath.lower()
+                if filepath != 'stop': # check to see if it is exit statement
+                    print('Error: File is not in current profile')
                 else:
-                    filepath = filepath.lower()
-                    if filepath != 'stop': # check to see if it is exit statement
-                        print('Error: File is not in current profile')
-                    else:
-                        break
-            set_Profile(profile, currentProfile, fernet, identifier)
-        except:
-            print('Profile does not exist')
-    else:
-        print("Option not chosen")
+                    break
+        set_Profile(profile, currentProfile, fernet, identifier)
+    except:
+        print('Profile does not exist')
 
 def mark_Toggle(fernet, identifier):
-    profile = './profiles/profile' + input('choose profile number: ') + '.txt'
+    profile = './profiles/' + input('choose profile name: ') + '.profile'
     try: # try to encrypt/decrypt files
         decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
         currentProfile = get_Profile(profile) # decrypt profile first, if dne will be caught
@@ -117,6 +104,22 @@ def mark_Toggle(fernet, identifier):
     except:
         print('Error: Profile does not exist')
 
+def add_Profile(fernet, identifier):
+    profile = './profiles/' + input('Choose name for new profile: ') + '.profile'
+    try:
+        open(profile, 'x')
+        encrypt(profile, fernet, identifier) # encrypt new profile
+        print('New Profile has been made')
+    except:
+        print('Profile name already exists')
+
+def del_Profile():
+    profile = './profiles/' + input('Choose name for new profile: ') + '.profile'
+    if os.path.exists(profile):
+        os.remove(profile)
+        print("Profile has been deleted")
+    else:
+        print("Profile does not exist")
 
 def main():
     # obtain key from file
@@ -130,11 +133,18 @@ def main():
     
     action = ''
     while action != 'quit':
-        action = input('Enter an action ((A)dd, (D)elete, (T)oggle, quit): ').lower()
+        action = input('Enter an action ((A)dd, (D)elete, (T)oggle, (S)tart profile, (R)emove profile, quit): ').lower()
         if action == 'a':
             mark_Add(fernet, identifier)
         elif action == 'd':
             mark_Del(fernet, identifier)
         elif action == 't':
             mark_Toggle(fernet, identifier)
+        elif action == 's':
+            add_Profile(fernet, identifier)
+        elif action == 'r':
+            del_Profile()
+        else:
+            print('option not chosen')
+
 main()
