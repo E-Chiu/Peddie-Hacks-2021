@@ -113,9 +113,15 @@ def add_Profile(fernet, identifier):
     except:
         print('Profile name already exists')
 
-def del_Profile():
-    profile = './profiles/' + input('Choose name for new profile: ') + '.profile'
+def del_Profile(fernet, identifier):
+    profile = './profiles/' + input('Choose name to delete: ') + '.profile'
     if os.path.exists(profile):
+        decrypt(profile, fernet, identifier)
+        currentProfile = get_Profile(profile)
+        for file in currentProfile:
+            with open(file, 'rb') as f:
+                if f.readline().startswith(identifier): # check if need to decode anything
+                    decrypt(file, fernet, identifier)
         os.remove(profile)
         print("Profile has been deleted")
     else:
@@ -143,7 +149,7 @@ def main():
         elif action == 's':
             add_Profile(fernet, identifier)
         elif action == 'r':
-            del_Profile()
+            del_Profile(fernet, identifier)
         else:
             print('option not chosen')
 
