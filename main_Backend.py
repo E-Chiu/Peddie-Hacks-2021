@@ -81,18 +81,18 @@ def mark_Del(fernet, identifier):
             while True:
                 print('Current filepaths: ' + ', '.join(currentProfile))
                 filepath = input('Enter a filepath or "stop": ')
-                if os.path.exists(filepath):
+                if filepath in currentProfile:
                     # check first if marked file has been encoded
                     with open(filepath, 'rb') as f:
                         if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
-                            decrypt(file, fernet, identifier)
+                            decrypt(filepath, fernet, identifier)
                             print("Encoded file has been decoded first")
                     currentProfile.remove(filepath)
                     print("File has been unmarked")
                 else:
                     filepath = filepath.lower()
                     if filepath != 'stop': # check to see if it is exit statement
-                        print('Error: File does not exist')
+                        print('Error: File is not in current profile')
                     else:
                         break
             set_Profile(profile, currentProfile, fernet, identifier)
