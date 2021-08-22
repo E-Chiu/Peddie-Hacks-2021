@@ -88,21 +88,37 @@ def mark_Del(fernet, identifier):
     except:
         print('Profile does not exist')
 
-def mark_Toggle(fernet, identifier):
+def encrypt_Set(fernet, identifier):
     profile = './profiles/' + input('choose profile name: ') + '.profile'
     try: # try to encrypt/decrypt files
         decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
-        currentProfile = get_Profile(profile) # decrypt profile first, if dne will be caught
+        currentProfile = get_Profile(profile) 
         for file in currentProfile:
             with open(file, 'rb') as f:
-                if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
-                    decrypt(file, fernet, identifier)
-                else: # otherwise encode it
+                if not f.readline().startswith(identifier):
                     encrypt(file, fernet, identifier)
-        encrypt(profile, fernet, identifier) # encode profile again
-        print("Files have been encrypted/decrypted")
+        encrypt(profile, fernet, identifier)
+        print('All files that can be encrypted have been encrypted')
     except:
-        print('Error: Profile does not exist')
+        print('Profile does not exist')
+
+def decrypt_Set(fernet, identifier):
+    profile = './profiles/' + input('choose profile name: ') + '.profile'
+    try: # try to encrypt/decrypt files
+        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
+        currentProfile = get_Profile(profile) 
+        for file in currentProfile:
+            with open(file, 'rb') as f:
+                if f.readline().startswith(identifier):
+                    decrypt(file, fernet, identifier)
+        encrypt(profile, fernet, identifier)
+        print('All files that can be decrypted have been decrypted')
+    except:
+        print('Profile does not exist')
+
+def mark_Toggle(fernet, identifier):
+    encrypt_Set(fernet, identifier)
+    decrypt_Set(fernet, identifier)
 
 def add_Profile(fernet, identifier):
     profile = './profiles/' + input('Choose name for new profile: ') + '.profile'
