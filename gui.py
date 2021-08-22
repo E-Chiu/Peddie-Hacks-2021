@@ -48,11 +48,11 @@ window = sg.Window(title="File Encryptor", layout=layout, margins=(10, 50), loca
 while True:
 
     event, values = window.read()
-    try:
+
+    if not values["_PROFILES_"] == "":
         window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier))
-    except:
-        continue
-    
+
+
     if event == sg.WIN_CLOSED:
         break
 
@@ -78,7 +78,7 @@ while True:
 
     if event == "Add":
         crypt.mark_Add(fernet, identifier, values["_PROFILES_"], values['_FILES_'].split(';'))
-        #window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier)) #adding file paths to the visual list
+        window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier)) #adding file paths to the visual list
 
         # filesAdded += values['_FILES_'].split(';') #adding new file paths
         # filesAdded = list(dict.fromkeys(filesAdded)) #remove duplicates
