@@ -30,10 +30,10 @@ sg.SetOptions(background_color='#000',
 encryptColumn = [
     [sg.In(size=(32,1), key="_NEW-PROF-IN_", enable_events=True), sg.Button("Add New Profile", key="_NEW-PROF_", size=(15,1))], # create new profile
     [sg.Combo([path.splitext(i)[0] for i in listdir("./profiles/") if isfile(join("./profiles/", i))], size=(30,1), key="_PROFILES_", enable_events=True), sg.Button("Remove Current Profile", key="_REMOVE-PROF_", size=(20,1))], # choose profile
-    [sg.In(size=(70,1), key="_FILES_", enable_events=True), sg.FilesBrowse("Add Files", target="_FILES_")], # browse files to encrypt
-    [sg.Submit("Add")], # adds chosen files to profile
+    [sg.In(size=(70,1), key="_FILES_", enable_events=True), sg.FilesBrowse("Browse Files", target="_FILES_")], # browse files to encrypt
+    [sg.Submit("Add")], # adds or removeschosen files to profile
     [sg.Listbox(values=[], enable_events=True, size=(70, 10), key="_FILE-ENCRYPT-LIST_")], # files in the profile
-    [sg.Submit("Encrypt"), sg.Submit("Decrypt")] # encrypt or decrypt files in profile
+    [sg.Submit("Encrypt"), sg.Submit("Decrypt"), sg.Submit("Remove Selected")] # encrypt or decrypt files in profile. remove selected
 ]
 
 #window format
@@ -44,12 +44,15 @@ layout = [
 
 window = sg.Window(title="File Encryptor", layout=layout, margins=(10, 50), location=(0,0), size=(1150, 600)) #window properties
 
-filesAdded = []
 
 while True:
 
     event, values = window.read()
-
+    try:
+        window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier))
+    except:
+        continue
+    
     if event == sg.WIN_CLOSED:
         break
 
@@ -75,18 +78,20 @@ while True:
 
     if event == "Add":
         crypt.mark_Add(fernet, identifier, values["_PROFILES_"], values['_FILES_'].split(';'))
-        print(crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier))
-        #window["_FILE-ENCRYPT-LIST_"].update(values=filesAdded) #adding file paths to the visual list
+        #window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier)) #adding file paths to the visual list
 
         # filesAdded += values['_FILES_'].split(';') #adding new file paths
         # filesAdded = list(dict.fromkeys(filesAdded)) #remove duplicates
         # window["_FILE-ENCRYPT-LIST_"].update(values=filesAdded) #adding file paths to the visual list
 
-    if event == "Encrypt":
-        continue
+    if event == "Remove Selected":
+        print(values["_FILE-ENCRYPT-LIST_"])
 
-    if event == "Decrypt":
-        continue
+    # if event == "Encrypt":
+    #     crypt.encrypt_Set(fernet, identifier, values["_PROFILES_"])
+
+    # if event == "Decrypt":
+    #     crypt.decrypt_Set(fernet, identifier, values["_PROFILES_"])
 
 
 crypt.cleanup(fernet, identifier)
