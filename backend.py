@@ -92,7 +92,6 @@ def encrypt_Set(fernet, identifier, name):
             with open(file, 'rb') as f:
                 if not f.readline().startswith(identifier):
                     encrypt(file, fernet, identifier)
-        encrypt(profile, fernet, identifier) # encode profile again
         print("All files that can be encrypted have been encrypted")
     except:
         print('Profile does not exist')
@@ -100,15 +99,14 @@ def encrypt_Set(fernet, identifier, name):
 def decrypt_Set(fernet, identifier, name):
     profile = './profiles/' + name + '.profile'
     try: # try to encrypt/decrypt files
-        currentProfile = get_Profile(profile) 
+        currentProfile = get_Profile(profile, fernet, identifier) 
         for file in currentProfile:
             with open(file, 'rb') as f:
                 if f.readline().startswith(identifier):
                     decrypt(file, fernet, identifier)
-        encrypt(profile, fernet, identifier)
         print('All files that can be decrypted have been decrypted')
-    except:
-        print('Profile does not exist')
+    except Exception as e:
+        print(e)
 
 def mark_Toggle(fernet, identifier, name):
     encrypt_Set(fernet, identifier, name)
@@ -140,31 +138,3 @@ def cleanup(fernet, identifier):
         with open(profile, 'rb') as f:
                 if not f.readline().startswith(identifier):
                     encrypt(profile, fernet, identifier)
-
-# def main():
-#     # obtain key from file
-#     with open('filekey.key', 'r') as filekey:
-#         key = filekey.read()
-#     with open('identifier.key', 'rb') as identifierkey:
-#         identifier = identifierkey.read()
-
-#     # use key
-#     fernet = Fernet(key)
-    
-#     action = ''
-#     while action != 'quit':
-#         action = input('Enter an action ((A)dd, (D)elete, (T)oggle, (S)tart profile, (R)emove profile, quit): ').lower()
-#         if action == 'a':
-#             mark_Add(fernet, identifier)
-#         elif action == 'd':
-#             mark_Del(fernet, identifier)
-#         elif action == 't':
-#             mark_Toggle(fernet, identifier)
-#         elif action == 's':
-#             add_Profile(fernet, identifier)
-#         elif action == 'r':
-#             del_Profile()
-#         else:
-#             print('option not chosen')
-
-#main()
