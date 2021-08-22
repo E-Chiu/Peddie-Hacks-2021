@@ -28,7 +28,7 @@ encryptColumn = [
     [sg.In(size=(70,1), key="_FILES_", enable_events=True), sg.FilesBrowse("Browse Files", target="_FILES_")], # browse files to encrypt
     [sg.Submit("Add")], # adds or removeschosen files to profile
     [sg.Listbox(values=[], enable_events=True, size=(70, 10), key="_FILE-ENCRYPT-LIST_")], # files in the profile
-    [sg.Submit("Encrypt"), sg.Submit("Decrypt"), sg.Submit("Remove Selected")] # encrypt or decrypt files in profile. remove selected
+    [sg.Submit("Encrypt"), sg.Submit("Decrypt"), sg.Button("Remove")] # encrypt or decrypt files in profile. remove selected
 ]
 
 #window format
@@ -39,7 +39,7 @@ layout = [
 
 window = sg.Window(title="File Encryptor", layout=layout, margins=(10, 50), location=(0,0), size=(1150, 600)) #window properties
 
-
+removePath = []
 while True:
 
     event, values = window.read()
@@ -49,7 +49,6 @@ while True:
 
     if values["_PROFILES_"] == "":
         window["_FILE-ENCRYPT-LIST_"].update(values=[])
-
 
     if event == sg.WIN_CLOSED:
         break
@@ -75,15 +74,23 @@ while True:
         crypt.mark_Add(fernet, identifier, values["_PROFILES_"], values['_FILES_'].split(';'))
         window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier)) #adding file paths to the visual list
 
-    if event == "Remove Selected":
-        print(values["_FILE-ENCRYPT-LIST_"])
-
     if event == "Encrypt":
         crypt.encrypt_Set(fernet, identifier, values["_PROFILES_"])
 
     if event == "Decrypt":
         crypt.decrypt_Set(fernet, identifier, values["_PROFILES_"])
 
+
+    if event == '_FILE-ENCRYPT-LIST_' and len(values['_FILE-ENCRYPT-LIST_']):     # if a list item is chosen
+        removePath = values['_FILE-ENCRYPT-LIST_']
+
+    if event == "Remove":
+        if removePath:
+            crypt.mark_Del(fernet, identifier, values["_PROFILES_"], removePath[0])
+            window["_FILE-ENCRYPT-LIST_"].update(values=crypt.get_Profile("./profiles/" + values["_PROFILES_"] + ".profile", fernet, identifier))
+
+    if event == "_PROFILES_":
+        removePath = []
 
 window.close()
 crypt.cleanup(fernet, identifier)

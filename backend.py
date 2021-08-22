@@ -58,28 +58,25 @@ def mark_Add(fernet, identifier, name, fileList):
     set_Profile(profile, currentProfile, fernet, identifier)
 
 
-def mark_Del(fernet, identifier, name):
+def mark_Del(fernet, identifier, name, filepath):
     profile = './profiles/' + name + '.profile'
     try:
-        currentProfile = get_Profile(profile) # get filepaths
-        filepath = ''
-        while True:
-            print('Current filepaths: ' + ', '.join(currentProfile))
-            filepath = input('Enter a filepath or "stop": ')
-            if filepath in currentProfile:
-                # check first if marked file has been encoded
-                with open(filepath, 'rb') as f:
-                    if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
-                        decrypt(filepath, fernet, identifier)
-                        print("Encoded file has been decoded first")
-                currentProfile.remove(filepath)
-                print("File has been unmarked")
-            else:
-                filepath = filepath.lower()
-                if filepath != 'stop': # check to see if it is exit statement
-                    print('Error: File is not in current profile')
-                else:
-                    break
+        currentProfile = get_Profile(profile, fernet, identifier) # get filepaths
+        print('Current filepaths: ' + ', '.join(currentProfile))
+        print(filepath)
+        print(profile)
+        if filepath in currentProfile:
+            # check first if marked file has been encoded
+            with open(filepath, 'rb') as f:
+                if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
+                    decrypt(filepath, fernet, identifier)
+                    print("Encoded file has been decoded first")
+            currentProfile.remove(filepath)
+            print("File has been unmarked")
+        else:
+            filepath = filepath.lower()
+            if filepath != 'stop': # check to see if it is exit statement
+                print('Error: File is not in current profile')
         set_Profile(profile, currentProfile, fernet, identifier)
     except:
         print('Profile does not exist')
