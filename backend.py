@@ -26,45 +26,41 @@ def decrypt(filePath, fernet, identifier):
     with open(filePath, 'wb') as file:
         file.write(decrypted)
 
-def get_Profile(profile):
+def get_Profile(profile, fernet, identifier):
     currentProfile = []
+    decrypt(profile, fernet, identifier)
     with open(profile, 'r') as readProfile:
         for line in readProfile:
             currentProfile.append(line.strip()) # add filenames to list and return
+    encrypt(profile, fernet, identifier)
     return currentProfile
 
 def set_Profile(profile, currentProfile, fernet, identifier):
+    decrypt(profile, fernet, identifier)
     with open(profile, 'w') as saveProfile:
         for file in currentProfile:
             saveProfile.write(file + "\n")
     encrypt(profile, fernet, identifier)
 
-def mark_Add(fernet, identifier):
-    profile = './profiles/' + input('choose profile name: ') + '.profile'
-    try:
-        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught        
-        currentProfile = get_Profile(profile) # get filenames
-        filename = ''
-        while True:
-            print('Current filepaths: ' + ', '.join(currentProfile))
-            filename = input('enter a filepath or "stop": ')
-            if os.path.exists(filename):
-                currentProfile.append(filename) # add to list if exists
-                print("File has been marked")
-            else:
-                filename = filename.lower()
-                if filename != 'stop': # check to see if it is exit statement
-                    print('Error: File does not exist')
-                else:
-                    break
-        set_Profile(profile, currentProfile, fernet, identifier)
-    except:
-        print("Profile does not exist")
+def mark_Add(fernet, identifier, name, fileList):
+    profile = './profiles/' + name + '.profile'
+     
+    currentProfile = get_Profile(profile, fernet, identifier) # get filenames
+    print('Current filepaths: ' + ', '.join(currentProfile))
+    for filename in fileList:
+        if os.path.exists(filename) and filename not in currentProfile:
+            currentProfile.append(filename) # add to list if exists
+            print("File has been marked")
+        else:
+            filename = filename.lower()
+            if filename != 'stop': # check to see if it is exit statement
+                print('Error: File does not exist')
+    set_Profile(profile, currentProfile, fernet, identifier)
 
-def mark_Del(fernet, identifier):
-    profile = './profiles/' + input('choose profile name: ') + '.profile'
+
+def mark_Del(fernet, identifier, name):
+    profile = './profiles/' + name + '.profile'
     try:
-        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
         currentProfile = get_Profile(profile) # get filepaths
         filepath = ''
         while True:
@@ -88,36 +84,45 @@ def mark_Del(fernet, identifier):
     except:
         print('Profile does not exist')
 
-def mark_Toggle(fernet, identifier):
-    profile = './profiles/' + input('choose profile name: ') + '.profile'
+def encrypt_Set(fernet, identifier, name):
+    profile = './profiles/' + name + '.profile'
     try: # try to encrypt/decrypt files
-        decrypt(profile, fernet, identifier) # decrypt profile first, if dne will be caught
-        currentProfile = get_Profile(profile) # decrypt profile first, if dne will be caught
+        currentProfile = get_Profile(profile, fernet, identifier) # decrypt profile first, if dne will be caught
         for file in currentProfile:
             with open(file, 'rb') as f:
-                if f.readline().startswith(identifier): # if the identifier is at the front of the file decode it
-                    decrypt(file, fernet, identifier)
-                else: # otherwise encode it
+                if not f.readline().startswith(identifier):
                     encrypt(file, fernet, identifier)
         encrypt(profile, fernet, identifier) # encode profile again
-        print("Files have been encrypted/decrypted")
+        print("All files that can be encrypted have been encrypted")
     except:
-        print('Error: Profile does not exist')
+        print('Profile does not exist')
+
+def decrypt_Set(fernet, identifier, name):
+    profile = './profiles/' + name + '.profile'
+    try: # try to encrypt/decrypt files
+        currentProfile = get_Profile(profile) 
+        for file in currentProfile:
+            with open(file, 'rb') as f:
+                if f.readline().startswith(identifier):
+                    decrypt(file, fernet, identifier)
+        encrypt(profile, fernet, identifier)
+        print('All files that can be decrypted have been decrypted')
+    except:
+        print('Profile does not exist')
+
+def mark_Toggle(fernet, identifier, name):
+    encrypt_Set(fernet, identifier, name)
+    decrypt_Set(fernet, identifier, name)
 
 def add_Profile(fernet, identifier, name):
     profile = './profiles/' + name + '.profile'
-    try:
-        open(profile, 'x')
-        encrypt(profile, fernet, identifier) # encrypt new profile
-        print('New Profile has been made')
-    except:
-        print('Profile name already exists')
+    open(profile, 'x')
+    encrypt(profile, fernet, identifier) # encrypt new profile
 
 def del_Profile(fernet, identifier, name):
-    profile = './profiles/' + name
+    profile = './profiles/' + name + '.profile'
     if os.path.exists(profile):
-        decrypt(profile, fernet, identifier)
-        currentProfile = get_Profile(profile)
+        currentProfile = get_Profile(profile, fernet, identifier)
         for file in currentProfile:
             with open(file, 'rb') as f:
                 if f.readline().startswith(identifier): # check if need to decode anything
@@ -126,6 +131,15 @@ def del_Profile(fernet, identifier, name):
         print("Profile has been deleted")
     else:
         print("Profile does not exist")
+
+
+def cleanup(fernet, identifier):
+    profiles = [f for f in os.listdir('./profiles') if os.path.isfile(os.path.join('./profiles', f))]
+    for profile in profiles: # make sure profiles are encrypted
+        profile = './profiles/' + profile # make correct filepath
+        with open(profile, 'rb') as f:
+                if not f.readline().startswith(identifier):
+                    encrypt(profile, fernet, identifier)
 
 # def main():
 #     # obtain key from file
