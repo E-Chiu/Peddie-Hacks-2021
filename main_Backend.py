@@ -48,7 +48,7 @@ def mark_Add(fernet, identifier):
         while True:
             print('Current filepaths: ' + ', '.join(currentProfile))
             filename = input('enter a filepath or "stop": ')
-            if os.path.exists(filename):
+            if os.path.exists(filename) and filename not in currentProfile:
                 currentProfile.append(filename) # add to list if exists
                 print("File has been marked")
             else:
@@ -127,16 +127,25 @@ def del_Profile(fernet, identifier):
     else:
         print("Profile does not exist")
 
+def cleanup(fernet, identifier):
+    profiles = [f for f in os.listdir('./profiles') if os.path.isfile(os.path.join('./profiles', f))]
+    for profile in profiles: # make sure profiles are encrypted
+        profile = './profiles/' + profile # make correct filepath
+        with open(profile, 'rb') as f:
+                if not f.readline().startswith(identifier):
+                    encrypt(profile, fernet, identifier)
+
 def main():
     # obtain key from file
     with open('filekey.key', 'r') as filekey:
         key = filekey.read()
     with open('identifier.key', 'rb') as identifierkey:
         identifier = identifierkey.read()
-
     # use key
     fernet = Fernet(key)
     
+    cleanup(fernet, identifier) # make sure profiles are encrypted on close
+
     action = ''
     while action != 'quit':
         action = input('Enter an action ((A)dd, (D)elete, (T)oggle, (S)tart profile, (R)emove profile, quit): ').lower()
@@ -150,7 +159,9 @@ def main():
             add_Profile(fernet, identifier)
         elif action == 'r':
             del_Profile(fernet, identifier)
-        else:
+        elif action != 'quit':
             print('option not chosen')
+    
+    cleanup(fernet, identifier)
 
 main()
