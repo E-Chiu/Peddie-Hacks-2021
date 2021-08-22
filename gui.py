@@ -4,6 +4,16 @@ from cryptography.fernet import Fernet
 from os import listdir, path
 from os.path import isfile, join
 
+# obtain key from file
+with open('filekey.key', 'r') as filekey:
+    key = filekey.read()
+with open('identifier.key', 'rb') as identifierkey:
+    identifier = identifierkey.read()
+# use key
+fernet = Fernet(key)
+
+crypt.cleanup(fernet, identifier)
+
 sg.SetOptions(background_color='#000',
     text_element_background_color='#9FB8AD',
     element_background_color='#9FB8AD',
@@ -36,15 +46,8 @@ window = sg.Window(title="File Encryptor", layout=layout, margins=(10, 50), loca
 
 filesAdded = []
 
-# obtain key from file
-with open('filekey.key', 'r') as filekey:
-    key = filekey.read()
-with open('identifier.key', 'rb') as identifierkey:
-    identifier = identifierkey.read()
-# use key
-fernet = Fernet(key)
-
 while True:
+
     event, values = window.read()
 
     if event == sg.WIN_CLOSED:
@@ -86,4 +89,5 @@ while True:
         continue
 
 
+crypt.cleanup(fernet, identifier)
 window.close()
