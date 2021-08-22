@@ -37,7 +37,7 @@ layout = [
     ]
 
 
-window = sg.Window(title="File Encryptor", layout=layout, margins=(10, 50), location=(0,0), size=(1150, 600)) #window properties
+window = sg.Window(title="EZ File Encryptor", layout=layout, margins=(10, 50), location=(0,0), size=(1150, 600)) #window properties
 
 removePath = [] # keep track of selected file on listbox
 while True:
