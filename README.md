@@ -1,5 +1,5 @@
 # EZFileEncoder
-## Winnder of Peddiehacks 2021
+## Winner of Peddiehacks 2021
 ### https://devpost.com/software/ez-file-encrypter
 Hackaton with Tim and Saugat
 
